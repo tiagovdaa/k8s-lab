@@ -22,7 +22,7 @@ The purpose of this project is provide a full-blown Kubernetes LAB with minimum 
  - [X] Hosts boots and are pre-configured
  - [X] Contairned installed
  - [X] Kubernetes tools are installed
- - [] Master init
- - [] Nodes join
+ - [ ] Master init
+ - [ ] Nodes join
 
 :brazil:
