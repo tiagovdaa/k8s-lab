@@ -5,7 +5,7 @@ Vagrant.configure("2") do |config|
       master.vm.hostname = "k8s-master"
       master.vm.network "public_network", bridge: "wlxd0374588d04e"
       master.vm.network :private_network, ip: "192.168.10.10", hostname: true
-      master.vm.provision "shell", path: "provision.sh"
+      #master.vm.provision "shell", path: "provision.sh"
       master.vm.provider :virtualbox do |vb|
         vb.name = "k8s-master"
         vb.customize ["modifyvm", :id, "--memory", "2048"]
@@ -21,7 +21,7 @@ Vagrant.configure("2") do |config|
     config.vm.define "node#{i}" do |node|
       node.vm.hostname = "k8s-node#{i}"
       node.vm.network :private_network, ip: "192.168.10.#{10+i}", hostname: true
-      node.vm.provision "shell", path: "provision.sh"
+      #node.vm.provision "shell", path: "provision.sh"
       node.vm.provider :virtualbox do |vb|
         vb.name = "k8s-node#{i}"
         vb.customize ["modifyvm", :id, "--memory", "2048"]

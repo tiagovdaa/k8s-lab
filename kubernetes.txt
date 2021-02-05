@@ -1,0 +1,7 @@
+### Kubernetes Master Init:
+
+kubeadm init --apiserver-advertise-address=192.168.10.10
+
+### Network Plugin (Weave)
+
+kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=$(kubectl version | base64 | tr -d '\n')"

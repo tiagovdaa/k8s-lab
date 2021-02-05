@@ -20,6 +20,8 @@ The purpose of this project is provide a full-blown Kubernetes LAB with minimum 
 ## List of Features
 
  - [X] Hosts boots and are pre-configured
+ - [ ] Ansible provisioning
+ - [ ] User creation and ssh-keys import (only vagrant user is being used)
  - [X] Contairned installed
  - [X] Kubernetes tools are installed
  - [ ] Master init
