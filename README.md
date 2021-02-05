@@ -1,2 +1,2 @@
 # k8s-lab
-Out of the Box Kubernetes Lab
+The goal of this project is provide a full-blown Kubernetes LAB with automagicly install
