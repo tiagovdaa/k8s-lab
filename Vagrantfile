@@ -32,7 +32,7 @@ Vagrant.configure("2") do |config|
         vb.customize ["modifyvm", :id, "--cpus", "1"]
       end
       node.vm.provision "ansible" do |ansible|
-        ansible.playbook = "kubernetes-setup/node-playbook.yml"
+        ansible.playbook = "kubernetes-setup/node-playbook.yaml"
         ansible.extra_vars = {
             node_ip: "192.168.50.#{i + 10}",
         }
