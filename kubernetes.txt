@@ -1,6 +1,7 @@
 ### Kubernetes Master Init:
 
 kubeadm init --apiserver-advertise-address=192.168.10.10
+kubeadm init --apiserver-advertise-address="192.168.10.10" --apiserver-cert-extra-sans="192.168.10.10"  --node-name k8s-master --pod-network-cidr=192.168.0.0/16
 
 ### Network Plugin (Weave)
 
