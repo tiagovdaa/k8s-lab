@@ -23,7 +23,7 @@ The purpose of this project is provide a full-blown Kubernetes LAB with minimum 
  - [X] Ansible provisioning
  - [X] Contairned installed
  - [X] Kubernetes tools are installed
- - [X] ] Master init
+ - [X] Master init
  - [X] Nodes join
  - [ ] User creation and ssh-keys import (only vagrant user is being used)
 
