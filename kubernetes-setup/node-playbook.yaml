@@ -96,27 +96,12 @@
       daemon_reload: yes
       state: restarted
 
-  - name: Initialize the Kubernetes cluster using kubeadm
-    command: kubeadm init --apiserver-advertise-address="192.168.10.10" --apiserver-cert-extra-sans="192.168.10.10" --node-name k8s-master --pod-network-cidr=192.168.0.0/16
+  - name: Copy the join command to server location
+    copy: src=join-command dest=/tmp/join-command.sh mode=0777
 
-  - name: Setup kubeconfig for vagrant user
-    command: "{{ item }}"
-    with_items:
-     - mkdir -p /home/vagrant/.kube
-     - cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
-     - chown vagrant:vagrant /home/vagrant/.kube/config
+  - name: Join the node to cluster
+    command: sh /tmp/join-command.sh
 
-  - name: Install weave network plugin
-    become: false
-    command: kubectl apply -f "https://cloud.weave.works/k8s/net?k8s-version=Q2xpZW50IFZlcnNpb246IHZlcnNpb24uSW5mb3tNYWpvcjoiMSIsIE1pbm9yOiIyMCIsIEdpdFZlcnNpb246InYxLjIwLjIiLCBHaXRDb21taXQ6ImZhZWNiMTk2ODE1ZTI0OGQzZWNmYjAzYzY4MGE0NTA3MjI5YzJhNTYiLCBHaXRUcmVlU3RhdGU6ImNsZWFuIiwgQnVpbGREYXRlOiIyMDIxLTAxLTEzVDEzOjI4OjA5WiIsIEdvVmVyc2lvbjoiZ28xLjE1LjUiLCBDb21waWxlcjoiZ2MiLCBQbGF0Zm9ybToibGludXgvYW1kNjQifQpTZXJ2ZXIgVmVyc2lvbjogdmVyc2lvbi5JbmZve01ham9yOiIxIiwgTWlub3I6IjIwIiwgR2l0VmVyc2lvbjoidjEuMjAuMiIsIEdpdENvbW1pdDoiZmFlY2IxOTY4MTVlMjQ4ZDNlY2ZiMDNjNjgwYTQ1MDcyMjljMmE1NiIsIEdpdFRyZWVTdGF0ZToiY2xlYW4iLCBCdWlsZERhdGU6IjIwMjEtMDEtMTNUMTM6MjA6MDBaIiwgR29WZXJzaW9uOiJnbzEuMTUuNSIsIENvbXBpbGVyOiJnYyIsIFBsYXRmb3JtOiJsaW51eC9hbWQ2NCJ9Cg=="
-
-  - name: Generate join command
-    command: kubeadm token create --print-join-command
-    register: join_command
-
-  - name: Copy join command to local file
-    local_action: copy content="{{ join_command.stdout_lines[0] }}" dest="./join-command"
-  
-handlers:
+  handlers:
     - name: containerd status
       service: name=containerd state=started
