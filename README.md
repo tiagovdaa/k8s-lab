@@ -28,14 +28,13 @@ The purpose of this project is provide a full-blown Kubernetes LAB with minimum 
 
 ## List of Features
 
- - [X] Hosts boots and are pre-configured
+ - [X] VMs with O.S. Installed
  - [X] Ansible provisioning
- - [X] Contairned installed
- - [X] Kubernetes tools are installed
- - [X] Master init
+ - [X] Container runtime installed (containerd)
+ - [X] Kubernetes tools installed (kubeadm, kubectl)
+ - [X] Master Node initialization (kubeadm)
  - [X] Nodes join
- - [ ] User creation and ssh-keys import (only vagrant user is being used)
-
+ 
 Created with :heart: using VScodium and Debian Linux.
 
 Made in Brazil :brazil:

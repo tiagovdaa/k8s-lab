@@ -34,7 +34,7 @@ Vagrant.configure("2") do |config|
       node.vm.provision "ansible" do |ansible|
         ansible.playbook = "kubernetes-setup/node-playbook.yaml"
         ansible.extra_vars = {
-            node_ip: "192.168.50.#{i + 10}",
+            node_ip: "192.168.10.#{i + 10}",
         }
       end
     end
