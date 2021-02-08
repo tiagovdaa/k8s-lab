@@ -18,13 +18,13 @@ The purpose of this project is provide a full-blown Kubernetes LAB with minimum 
 - Vagrant 2.2.10 or higher 
 - Ansible 2.9.17 or higher
 
-# Architecture
+## Architecture
 
 | Host |     IP      |
 |------|-------------|
 |master|192.168.10.10|
 |mode1 |192.168.10.11|
-|mode2 |192.168.10.11|
+|mode2 |192.168.10.12|
 
 ## List of Features
 
