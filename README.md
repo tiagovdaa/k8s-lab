@@ -16,6 +16,14 @@ The purpose of this project is provide a full-blown Kubernetes LAB with minimum 
 
 - VirtualBox 6.1 or higher
 - Vagrant 2.2.10 or higher 
+- Ansible 2.9.17 or higher
+
+# Architecture
+
+|Host|IP|
+|master|192.168.10.10|
+|mode1|192.168.10.11|
+|mode2|192.168.10.11|
 
 ## List of Features
 
@@ -27,4 +35,4 @@ The purpose of this project is provide a full-blown Kubernetes LAB with minimum 
  - [X] Nodes join
  - [ ] User creation and ssh-keys import (only vagrant user is being used)
 
-Created with :love: using VScodium, Debian Linux in :brazil:
+Created with :heart: using VScodium, Debian Linux in :brazil:
