@@ -37,4 +37,5 @@ The purpose of this project is provide a full-blown Kubernetes LAB with minimum 
  - [ ] User creation and ssh-keys import (only vagrant user is being used)
 
 Created with :heart: using VScodium and Debian Linux.
+
 Made in Brazil :brazil:
