@@ -37,6 +37,13 @@ Our main goal is to setup a multi node Kubernetes cluster for development or stu
  - [X] Kubernetes tools installed (kubeadm, kubectl)
  - [X] Master Node initialization (kubeadm)
  - [X] Nodes join
+
+ ## How to use it
+```
+ git clone https://github.com/tiagovdaa/k8s-lab.git
+ cd k8s-lab
+ vagrant up
+ ```
  
 Created with :heart: using VScodium and Debian Linux.
 
