@@ -2,7 +2,10 @@
 
 ## Purpose
 
-The purpose of this project is provide a full-blown Kubernetes LAB with minimum pain.
+Our main goal is to setup a multi node Kubernetes cluster for development or study purposes. This setup provides a production-like cluster that can be setup on your local machine.
+
+![Peek 08-02-2021 12-06](https://user-images.githubusercontent.com/1900641/107238354-82b24000-6a06-11eb-9d12-0fed6fbccb0a.gif)
+
 
 ## Pre-requisites
 
