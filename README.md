@@ -1,5 +1,11 @@
 # k8s-lab
 
+How to have a Kubernetes Cluster on your lab at a snap of fingers!
+
+<img src="/home/tiago/maxresdefault.jpg" style="zoom:25%;" />
+
+*and not dying for it! :-)*
+
 ## Purpose
 
 Our main goal is to setup a multi node Kubernetes cluster for development or study purposes. This setup provides a production-like cluster that can be setup on your local machine.
@@ -43,8 +49,8 @@ Our main goal is to setup a multi node Kubernetes cluster for development or stu
  git clone https://github.com/tiagovdaa/k8s-lab.git
  cd k8s-lab
  vagrant up
- ```
- 
+```
+
 Created with :heart: using VScodium and Debian Linux.
 
 Made in Brazil :brazil:
