@@ -1,0 +1,3 @@
+.vagrant/*
+kubernetes-setup/join-command
+roles/k8s-lab-join-command
