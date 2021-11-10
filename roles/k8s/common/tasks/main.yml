@@ -1,3 +1,6 @@
+- name: set timezone
+  timezone:
+    name: "{{ _timezone }}"
 
 - name: Remove current swaps from fstab
   lineinfile:
