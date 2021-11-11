@@ -29,6 +29,12 @@
     group: "{{ k8s_master_admin_group }}"
     mode: 0660
 
+- name: Copy kube config to local
+  fetch:
+    src: /home/{{ k8s_master_admin_user }}/.kube/config
+    dest: /home/{{ username }}/.kube/config
+    flat: yes
+
 #Rewrite calico replacing defaults
 #https://docs.projectcalico.org/getting-started/kubernetes/self-managed-onprem/onpremises
 - name: Rewrite calico.yaml
