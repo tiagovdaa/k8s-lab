@@ -29,11 +29,11 @@ Our main goal is to setup a multi node Kubernetes cluster for development or stu
 
 | Host       | IP            |
 | ---------- | ------------- |
-| k8s-master | 192.168.50.10 |
-| k8s-node1  | 192.168.50.11 |
-| k8s-node2  | 192.168.50.12 |
+| k8s-master | 192.168.56.10 |
+| k8s-node1  | 192.168.56.11 |
+| k8s-node2  | 192.168.56.12 |
 
-*default values (it can be changed)
+*ip range of 192.168.56.0/21 is the default for host-only networks of VirtualBox, it can be changed editing /etc/vbox/networks.conf and then editing variable IP_BASE on Vagrantfile.
 
 ## List of Features
 
