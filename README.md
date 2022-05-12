@@ -68,7 +68,7 @@ Obtain authentication token:
 kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
 ```
 
-Access the Kubernetes Dashboard using the URL https://192.168.50.11:30002/#/login using the token printed before.
+Access the Kubernetes Dashboard using the URL https://192.168.56.11:30002/#/login using the token printed before.
 
 Created with :heart: using VScodium and Debian Linux.
 
