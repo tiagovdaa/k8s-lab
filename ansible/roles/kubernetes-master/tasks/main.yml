@@ -26,9 +26,8 @@
 - name: Copy admin.conf to user's home directory
   fetch:
     src: /etc/kubernetes/admin.conf
-    dest: "{{ local_admin_conf_dest }}"
+    dest: ~/admin.conf
     flat: yes
   become: yes
   tags:
     - kubeadm
-

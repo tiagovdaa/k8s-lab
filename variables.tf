@@ -116,9 +116,3 @@ variable "worker_disk_size" {
   type        = number
   default     = 20  # Default size in GB
 }
-
-variable "local_admin_conf_dest" {
-  description = "Local destination path for admin.conf"
-  type        = string
-  default     = "~/admin.conf"  # You can override this in terraform.tfvars if needed
-}
