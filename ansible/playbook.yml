@@ -1,0 +1,13 @@
+---
+
+- hosts: masters
+  become: yes
+  roles:
+    - common
+    - kubernetes-master
+
+- hosts: workers
+  become: yes
+  roles:
+    - common
+#    - kubernetes-worker  # To be defined

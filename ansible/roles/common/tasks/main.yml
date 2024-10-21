@@ -1,0 +1,215 @@
+- name: Update and upgrade apt packages
+  apt:
+    update_cache: yes
+    upgrade: dist
+    cache_valid_time: 3600
+  tags:
+    - packages
+
+- name: Install required packages
+  apt:
+    name:
+      - apt-transport-https
+      - curl
+      - git
+      - wget
+      - vim
+    state: present
+  tags:
+    - packages
+
+- name: Disable swap
+  shell: |
+    swapoff -a
+    sed -i '/ swap / s/^/#/' /etc/fstab
+  when: ansible_swaptotal_mb > 0
+  tags:
+    - swap
+
+- name: Load necessary kernel modules
+  modprobe:
+    name: "{{ item }}"
+    state: present
+    persistent: present
+  loop:
+    - overlay
+    - br_netfilter
+  tags:
+    - kernel
+
+- name: Ensure sysctl parameters are set
+  sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    sysctl_set: yes
+    state: present
+    reload: yes
+  loop:
+    - { name: 'net.bridge.bridge-nf-call-ip6tables', value: '1' }
+    - { name: 'net.bridge.bridge-nf-call-iptables',  value: '1' }
+    - { name: 'net.ipv4.ip_forward',                 value: '1' }
+  tags:
+    - sysctl
+
+- name: Ensure /etc/apt/keyrings directory exists
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+  tags:
+    - docker
+    - kubernetes
+
+# Docker GPG Key and Repository
+
+- name: Add Docker GPG key
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    keyring: /etc/apt/keyrings/docker.gpg
+    state: present
+  tags:
+    - docker
+
+- name: Add Docker apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb [arch={{ ansible_architecture }} signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable"
+    filename: docker
+    state: present
+  tags:
+    - docker
+
+- name: Update apt cache after adding Docker repo
+  apt:
+    update_cache: yes
+  tags:
+    - docker
+
+- name: Install containerd
+  apt:
+    name: containerd{{ containerd_version if containerd_version else '' }}
+    state: present
+  tags:
+    - containerd
+
+- name: Check if containerd config exists
+  stat:
+    path: /etc/containerd/config.toml
+  register: containerd_config_check
+  tags:
+    - containerd
+
+- name: Ensure /etc/containerd directory exists
+  file:
+    path: /etc/containerd
+    state: directory
+    mode: '0755'
+  tags:
+    - containerd
+  become: yes
+
+- name: Check if containerd config exists
+  stat:
+    path: /etc/containerd/config.toml
+  register: containerd_config_exists
+  tags:
+    - containerd
+  become: yes
+
+- name: Generate default containerd configuration
+  command: containerd config default
+  register: containerd_config
+  changed_when: true
+  when: not containerd_config_exists.stat.exists
+  tags:
+    - containerd
+  become: yes
+
+- name: Write containerd configuration
+  copy:
+    dest: /etc/containerd/config.toml
+    content: "{{ containerd_config.stdout }}"
+    owner: root
+    group: root
+    mode: '0644'
+  when: not containerd_config_exists.stat.exists
+  notify:
+    - Restart containerd
+  tags:
+    - containerd
+  become: yes
+
+- name: Set SystemdCgroup to true in containerd config
+  replace:
+    path: /etc/containerd/config.toml
+    regexp: '^(\s*)SystemdCgroup = false'
+    replace: '\1SystemdCgroup = true'
+  notify:
+    - Restart containerd
+  tags:
+    - containerd
+
+- name: Ensure containerd service is enabled and started
+  systemd:
+    name: containerd
+    enabled: yes
+    state: started
+  tags:
+    - containerd
+  become: yes
+
+# Kubernetes GPG Key and Repository
+
+- name: Add Kubernetes GPG key
+  ansible.builtin.apt_key:
+    url: https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key
+    keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+    state: present
+  tags:
+    - kubernetes
+
+- name: Add Kubernetes apt repository
+  ansible.builtin.apt_repository:
+    repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /"
+    filename: kubernetes
+    state: present
+  tags:
+    - kubernetes
+
+- name: Update apt cache after adding Kubernetes repo
+  apt:
+    update_cache: yes
+  tags:
+    - kubernetes
+
+- name: Install specific versions of kubeadm, kubelet, kubectl
+  apt:
+    name:
+      - "kubeadm={{ kubernetes_package_version }}"
+      - "kubelet={{ kubernetes_package_version }}"
+      - "kubectl={{ kubernetes_package_version }}"
+    state: present
+    allow_downgrade: yes
+  tags:
+    - kubernetes
+
+
+- name: Hold kubeadm package
+  dpkg_selections:
+    name: kubeadm
+    selection: hold
+  tags:
+    - kubernetes
+
+- name: Hold kubelet package
+  dpkg_selections:
+    name: kubelet
+    selection: hold
+  tags:
+    - kubernetes
+
+- name: Hold kubectl package
+  dpkg_selections:
+    name: kubectl
+    selection: hold
+  tags:
+    - kubernetes

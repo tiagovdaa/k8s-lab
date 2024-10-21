@@ -1,0 +1,5 @@
+# Default Kubernetes package versions (will be overridden by Terraform variables)
+kubernetes_version: "1.29.1-1.1"
+
+# Containerd version if you wish to specify (optional)
+containerd_version: ""

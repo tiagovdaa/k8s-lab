@@ -1,0 +1,34 @@
+---
+- name: Add IP and hostname to /etc/hosts
+  lineinfile:
+    path: /etc/hosts
+    line: "{{ ansible_default_ipv4.address }} {{ control_plane_endpoint }}"
+    state: present
+  tags:
+    - hosts
+
+- name: Create kubeadm configuration file
+  template:
+    src: kubeadm-config.yaml.j2
+    dest: /root/kubeadm-config.yaml
+  tags:
+    - kubeadm
+
+- name: Initialize Kubernetes control plane
+  command: |
+    kubeadm init --config=/root/kubeadm-config.yaml --upload-certs
+  args:
+    creates: /etc/kubernetes/admin.conf
+  register: kubeadm_init
+  tags:
+    - kubeadm
+
+- name: Copy admin.conf to user's home directory
+  fetch:
+    src: /etc/kubernetes/admin.conf
+    dest: "{{ local_admin_conf_dest }}"
+    flat: yes
+  become: yes
+  tags:
+    - kubeadm
+
