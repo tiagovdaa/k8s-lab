@@ -28,7 +28,10 @@ resource "libvirt_cloudinit_disk" "admin_cloudinit" {
   name           = "${var.admin_hostname}-cloudinit.iso"
   user_data = templatefile("${path.module}/templates/cloud-init-admin.tpl", {
     hostname        = var.admin_hostname
-    ssh_public_key  = file(var.ssh_public_key_path)
+    ssh_public_key  = file(var.ssh_public_key_path)   
+  })
+  network_config = templatefile("${path.module}/templates/network-config-admin.tpl", {
+
     admin_use_dhcp = var.admin_use_dhcp
     admin_ip        = var.admin_use_dhcp ? "" : var.admin_ip
     netmask          = var.netmask
@@ -53,6 +56,8 @@ resource "libvirt_cloudinit_disk" "master_cloudinit" {
   user_data = templatefile("${path.module}/templates/cloud-init-master.tpl", {
     hostname       = "${var.master_hostname_prefix}-${count.index}"
     ssh_public_key = file(var.ssh_public_key_path)
+  })
+  network_config = templatefile("${path.module}/templates/network-config-master.tpl", {
     masters_use_dhcp = var.masters_use_dhcp
     master_ip        = var.masters_use_dhcp ? "" : var.master_ips[count.index]
     netmask          = var.netmask
@@ -78,13 +83,14 @@ resource "libvirt_cloudinit_disk" "worker_cloudinit" {
   user_data = templatefile("${path.module}/templates/cloud-init-worker.tpl", {
     hostname       = "${var.worker_hostname_prefix}-${count.index}"
     ssh_public_key = file(var.ssh_public_key_path)
+  })
+  network_config = templatefile("${path.module}/templates/network-config-worker.tpl", {
     workers_use_dhcp = var.workers_use_dhcp
     worker_ip        = var.workers_use_dhcp ? "" : var.worker_ips[count.index]
     netmask          = var.netmask
     gateway          = var.gateway
     dns_servers     = var.dns_servers    
-    }
-  )
+  })
   pool      = "default"
 }
 
