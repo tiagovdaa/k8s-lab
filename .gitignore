@@ -4,6 +4,8 @@ images/*
 terraform.tfstate
 terraform.tfstate.backup
 ansible/inventory* 
+plan
+.gitignore
 # Local .terraform directories
 **/.terraform/*
 
