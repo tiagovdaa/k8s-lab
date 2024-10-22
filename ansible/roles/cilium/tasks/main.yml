@@ -1,4 +1,19 @@
 ---
+- name: Add Cilium Helm repository
+  helm_repository:
+    name: cilium
+    repo_url: https://helm.cilium.io/
+
+- name: Install Cilium via Helm
+  helm:
+    name: cilium
+    chart: cilium/cilium
+    namespace: kube-system
+    version: "{{ cilium_version }}"
+    values:
+      ipam.operator.clusterPoolIPv4PodCIDRList:
+        - "{{ pod_subnet }}"
+
 - name: Template Cilium YAML with variables
   ansible.builtin.template:
     src: "templates/cilium.yaml.j2"

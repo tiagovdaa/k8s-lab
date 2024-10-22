@@ -1,5 +1,3 @@
-# ansible/roles/kubernetes-master/defaults/main.yml
-
 ---
 # Default values (will be overridden by variables from Terraform)
 kubernetes_version: "1.29.1"

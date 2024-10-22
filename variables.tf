@@ -1,5 +1,3 @@
-# variables.tf
-
 variable "os_image_url" {
   description = "URL to the base OS image file"
   type        = string
@@ -7,6 +5,11 @@ variable "os_image_url" {
 
 variable "os_image_local_path" {
   description = "Local path where the OS image will be downloaded"
+  type        = string
+}
+
+variable "network_name" {
+  description = "Name of the existing libvirt network to use"
   type        = string
 }
 
@@ -20,14 +23,42 @@ variable "ssh_public_key_path" {
   type        = string
 }
 
-variable "master_count" {
-  description = "Number of master nodes"
-  type        = number
+variable "admin_hostname" {
+  description = "Hostname prefix for master nodes"
+  type        = string
 }
 
-variable "worker_count" {
-  description = "Number of worker nodes"
+variable "admin_memory" {
+  description = "Memory (in MB) for each master node"
   type        = number
+  default     = 1024
+}
+
+variable "admin_vcpu" {
+  description = "Number of vCPUs for each master node"
+  type        = number
+  default     = 1
+}
+
+variable "admin_disk_size" {
+  description = "Disk size for master nodes in GB"
+  type        = number
+  default     = 10  # Default size in GB
+}
+
+variable "master_hostname_prefix" {
+  description = "Hostname prefix for master nodes"
+  type        = string
+}
+
+variable "master_count" {
+  type        = number
+  description = "Number of master nodes (must be an odd number)"
+
+  validation {
+    condition     = var.master_count % 2 == 1
+    error_message = "The 'master_count' variable must be an odd number (e.g., 1, 3, 5, ...)."
+  }
 }
 
 variable "master_memory" {
@@ -37,6 +68,22 @@ variable "master_memory" {
 
 variable "master_vcpu" {
   description = "Number of vCPUs for each master node"
+  type        = number
+}
+
+variable "master_disk_size" {
+  description = "Disk size for master nodes in GB"
+  type        = number
+  default     = 20  # Default size in GB
+}
+
+variable "worker_hostname_prefix" {
+  description = "Hostname prefix for worker nodes"
+  type        = string
+}
+
+variable "worker_count" {
+  description = "Number of worker nodes"
   type        = number
 }
 
@@ -50,19 +97,10 @@ variable "worker_vcpu" {
   type        = number
 }
 
-variable "master_hostname_prefix" {
-  description = "Hostname prefix for master nodes"
-  type        = string
-}
-
-variable "worker_hostname_prefix" {
-  description = "Hostname prefix for worker nodes"
-  type        = string
-}
-
-variable "network_name" {
-  description = "Name of the existing libvirt network to use"
-  type        = string
+variable "worker_disk_size" {
+  description = "Disk size for worker nodes in GB"
+  type        = number
+  default     = 20  # Default size in GB
 }
 
 variable "ansible_inventory_file" {
@@ -103,18 +141,6 @@ variable "pod_subnet" {
   description = "CIDR for the pod network"
   type        = string
   default     = "192.168.0.0/16"
-}
-
-variable "master_disk_size" {
-  description = "Disk size for master nodes in GB"
-  type        = number
-  default     = 20  # Default size in GB
-}
-
-variable "worker_disk_size" {
-  description = "Disk size for worker nodes in GB"
-  type        = number
-  default     = 20  # Default size in GB
 }
 
 variable "cilium_version" {

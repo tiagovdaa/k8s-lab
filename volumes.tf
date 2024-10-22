@@ -25,6 +25,14 @@ resource "libvirt_volume" "base_os_image" {
   depends_on = [null_resource.download_os_image]
 }
 
+# Create storage volumes for admin node by cloning the base volume
+resource "libvirt_volume" "admin_disk" {
+  name           = "${var.admin_hostname}-disk.qcow2"
+  base_volume_id = libvirt_volume.base_os_image.id
+  format         = "qcow2"
+  size           = var.admin_disk_size * 1024 * 1024 * 1024  # Convert GB to bytes
+}
+
 # Create storage volumes for master nodes by cloning the base volume
 resource "libvirt_volume" "master_disk" {
   count          = var.master_count

@@ -46,7 +46,6 @@ EOF
   }
 }
 
-
 # Run Ansible playbook
 resource "null_resource" "provision_cluster" {
   depends_on = [null_resource.generate_inventory]
