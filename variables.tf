@@ -9,8 +9,31 @@ variable "os_image_local_path" {
 }
 
 variable "network_name" {
-  description = "Name of the existing libvirt network to use"
+  description = "Name of the network to use"
   type        = string
+  default     = "default"
+}
+
+variable "use_dhcp" {
+  description = "Whether to use DHCP for IP assignment"
+  type        = bool
+  default     = true
+}
+
+variable "netmask" {
+  description = "Netmask for static IP configuration (in CIDR notation, e.g., '24')"
+  type        = string
+}
+
+variable "gateway" {
+  description = "Gateway for static IP configuration"
+  type        = string
+}
+
+variable "dns_servers" {
+  description = "List of DNS servers"
+  type        = list(string)
+  default     = ["8.8.8.8", "8.8.4.4"]
 }
 
 variable "ssh_private_key_path" {
@@ -26,6 +49,23 @@ variable "ssh_public_key_path" {
 variable "admin_hostname" {
   description = "Hostname prefix for master nodes"
   type        = string
+}
+
+variable "admin_use_dhcp" {
+  description = "Whether to use DHCP for the admin node"
+  type        = bool
+  default     = true
+}
+
+variable "admin_ip" {
+  description = "Static IP for the admin node (required if use_dhcp is false)"
+  type        = string
+  default     = ""
+  
+  validation {
+    condition     = var.admin_use_dhcp || (var.admin_ip != "")
+    error_message = "You must provide 'admin_ip' when 'use_dhcp' is false."
+  }
 }
 
 variable "admin_memory" {
@@ -61,6 +101,24 @@ variable "master_count" {
   }
 }
 
+variable "masters_use_dhcp" {
+  description = "Whether to use DHCP for master nodes"
+  type        = bool
+  default     = false
+}
+
+
+variable "master_ips" {
+  description = "List of static IPs for master nodes (required if use_dhcp is false)"
+  type        = list(string)
+  default     = []
+  
+  validation {
+    condition     = var.masters_use_dhcp || length(var.master_ips) == var.master_count
+    error_message = "You must provide 'master_ips' with exactly 'master_count' entries when 'use_dhcp' is false."
+  }
+}
+
 variable "master_memory" {
   description = "Memory (in MB) for each master node"
   type        = number
@@ -85,6 +143,23 @@ variable "worker_hostname_prefix" {
 variable "worker_count" {
   description = "Number of worker nodes"
   type        = number
+}
+
+variable "workers_use_dhcp" {
+  description = "Whether to use DHCP for worker nodes"
+  type        = bool
+  default     = false
+}
+
+variable "worker_ips" {
+  description = "List of static IPs for worker nodes (required if use_dhcp is false)"
+  type        = list(string)
+  default     = []
+  
+  validation {
+    condition     = var.workers_use_dhcp || length(var.worker_ips) == var.worker_count
+    error_message = "You must provide 'worker_ips' with exactly 'worker_count' entries when 'use_dhcp' is false."
+  }
 }
 
 variable "worker_memory" {

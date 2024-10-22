@@ -8,5 +8,27 @@ growpart:
   devices: ['/']
   ignore_growroot_disabled: false
 
+#cloud-config
+{% if workers_use_dhcp %}
+network:
+  version: 2
+  ethernets:
+    eth0:
+      dhcp4: true
+{% else %}
+network:
+  version: 2
+  ethernets:
+    eth0:
+      addresses:
+        - {{ worker_ip }}/{{ netmask }}
+      gateway4: {{ gateway }}
+      nameservers:
+        addresses:
+{% for dns in dns_servers %}
+          - {{ dns }}
+{% endfor %}
+{% endif %}
+
 runcmd:
   - resize2fs /dev/sda1  # Adjust the device name as appropriate  
