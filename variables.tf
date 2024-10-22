@@ -116,3 +116,27 @@ variable "worker_disk_size" {
   type        = number
   default     = 20  # Default size in GB
 }
+
+variable "cilium_version" {
+  description = "Version of Cilium to install (e.g., '1.13.4')"
+  type        = string
+  default     = "1.14.1"
+}
+
+variable "cilium_namespace" {
+  description = "Kubernetes namespace to install Cilium"
+  type        = string
+  default     = "cilium"
+}
+
+variable "cilium_image_repository" {
+  description = "Cilium image repository"
+  type        = string
+  default     = "quay.io/cilium/cilium"
+}
+
+variable "kubeconfig_path" {
+  description = "kubeconfig location"
+  type = string
+  default = "~/.kube/config"
+}

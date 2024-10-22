@@ -1,0 +1,33 @@
+---
+- name: Template Cilium YAML with variables
+  ansible.builtin.template:
+    src: "templates/cilium.yaml.j2"
+    dest: "/tmp/cilium.yaml"
+    mode: '0644'
+  tags:
+    - cilium
+
+- name: Apply Cilium YAML
+  kubernetes.core.k8s:
+    state: present
+    src: "/tmp/cilium.yaml"
+    kubeconfig: "{{ kubeconfig_path }}"
+  tags:
+    - cilium
+
+#- name: Wait for Cilium pods to be ready
+#  kubernetes.core.k8s_info:
+#    kind: Pod
+#    namespace: "{{ cilium_namespace }}"
+#  register: cilium_pods
+#  until: cilium_pods.resources | selectattr('status.phase', 'equalto', 'Running') | list | length >= 1
+#  retries: 10
+#  delay: 15
+#  tags:
+#    - cilium
+
+- name: Display Cilium pod statuses
+  debug:
+    msg: "{{ cilium_pods.resources | json_query('[*].metadata.name') }}"
+  tags:
+    - cilium

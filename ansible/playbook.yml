@@ -1,13 +1,17 @@
 ---
-
-- hosts: masters
+- name: Configure Kubernetes Masters and Deploy Cilium
+  hosts: masters
   become: yes
+  environment:
+    KUBECONFIG: "{{ kubeconfig_path }}"
   roles:
     - common
     - kubernetes-master
+    - cilium  
 
-- hosts: workers
+- name: Configure Kubernetes Workers
+  hosts: workers
   become: yes
   roles:
-    - common
-#    - kubernetes-worker  # To be defined
+     - common
+#    - kubernetes-worker

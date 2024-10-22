@@ -1,0 +1,5 @@
+---
+cilium_version: "{{ lookup('env', 'CILIUM_VERSION') | default('1.13.4') }}"
+cilium_namespace: "cilium"
+cilium_image_repository: "quay.io/cilium/cilium"
+pod_cidr: "{{ kubernetes_pod_cidr }}"  # Ensure this variable is defined elsewhere

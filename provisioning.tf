@@ -26,10 +26,10 @@ resource "null_resource" "generate_inventory" {
 cat > ${var.ansible_inventory_file} <<EOL
 [masters]
 ${join("\n", [for master in libvirt_domain.masters : "${master.name} ansible_host=${master.network_interface[0].addresses[0]}"])}
-
+  
 [workers]
 ${join("\n", [for worker in libvirt_domain.workers : "${worker.name} ansible_host=${worker.network_interface[0].addresses[0]}"])}
-
+  
 [all:vars]
 ansible_user=ubuntu
 ansible_ssh_private_key_file=${var.ssh_private_key_path}
@@ -38,6 +38,9 @@ kubernetes_package_version=${var.kubernetes_package_version}
 containerd_version=${var.containerd_version}
 control_plane_endpoint=${var.control_plane_endpoint}
 pod_subnet=${var.pod_subnet}
+cilium_version=${var.cilium_version}
+cilium_namespace=${var.cilium_namespace}
+kubeconfig_path=${var.kubeconfig_path}
 EOL
 EOF
   }
