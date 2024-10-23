@@ -3,9 +3,40 @@ variable "os_image_url" {
   type        = string
 }
 
-variable "os_image_local_path" {
-  description = "Local path where the OS image will be downloaded"
+variable "base_image_pool_name" {
+  description = "Name of the storage pool for base images"
   type        = string
+  default     = "images"
+}
+
+variable "create_base_image_pool" {
+  description = "Set to true to create the base image storage pool if it doesn't exist"
+  type        = bool
+  default     = false
+}
+
+variable "base_image_pool_path" {
+  description = "Filesystem path for the base image storage pool (required if create_base_image_pool is true)"
+  type        = string
+  default     = "/var/lib/libvirt/images"
+}
+
+variable "vm_disk_pool_name" {
+  description = "Name of the storage pool for VM disks"
+  type        = string
+  default     = "vms"
+}
+
+variable "create_vm_disk_pool" {
+  description = "Set to true to create the VM disks storage pool if it doesn't exist"
+  type        = bool
+  default     = false
+}
+
+variable "vm_disk_pool_path" {
+  description = "Filesystem path for the VM disks storage pool (required if create_vm_disk_pool is true)"
+  type        = string
+  default     = "/var/lib/libvirt/vms"
 }
 
 variable "network_name" {
