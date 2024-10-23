@@ -1,6 +1,7 @@
 variable "os_flavor" {
   description = "Operating system flavor: 'ubuntu', 'debian', 'rocky'"
   type        = string
+  default     = "debian"
   validation {
     condition     = contains(["ubuntu", "debian", "rocky"], var.os_flavor)
     error_message = "Invalid 'os_flavor'. Allowed values are 'ubuntu', 'debian', 'rocky'."
@@ -26,7 +27,7 @@ locals {
     }
   }
 
-  default_username = local.os_images[var.os_flavor]["username"]
+  username = local.os_images[var.os_flavor]["username"]
 }
 
 variable "os_image_url" {
@@ -134,11 +135,13 @@ variable "create_network" {
 variable "ssh_private_key_path" {
   description = "Path to your existing SSH private key"
   type        = string
+  default     = "~/.ssh/id_rsa"
 }
 
 variable "ssh_public_key_path" {
   description = "Path to your existing SSH public key"
   type        = string
+  default     = "~/.ssh/id_rsa.pub"
 }
 
 variable "admin_hostname" {
@@ -272,66 +275,26 @@ variable "worker_disk_size" {
   default     = 20
 }
 
-variable "ansible_inventory_file" {
-  description = "Path to the Ansible inventory file"
+variable "ansible_ssh_private_key" {
+  description = "Path to the SSH private key for Ansible to connect to the VMs"
   type        = string
-  default     = "./ansible/inventory.ini"
+  default     = "~/.ssh/id_rsa"  # Update as per your environment
 }
 
-variable "ansible_playbook" {
-  description = "Path to the Ansible playbook"
+variable "admin_user" {
+  description = "SSH username for the admin node"
   type        = string
-  default     = "./ansible/playbook.yml"
+  default     = "debian"  # Update based on os_flavor
 }
 
-variable "kubernetes_version" {
-  description = "Version of Kubernetes packages to install (e.g., '1.29.1')"
+variable "master_user" {
+  description = "SSH username for the master nodes"
   type        = string
+  default     = "debian"  # Update based on os_flavor
 }
 
-variable "kubernetes_package_version" {
-  description = "Version of Kubernetes packages to install (e.g., '1.29.1-1.1')"
+variable "worker_user" {
+  description = "SSH username for the worker nodes"
   type        = string
-}
-
-variable "containerd_version" {
-  description = "Version of containerd to install (optional)"
-  type        = string
-  default     = ""
-}
-
-variable "control_plane_endpoint" {
-  description = "Hostname for the control plane endpoint"
-  type        = string
-  default     = "k8scp"
-}
-
-variable "pod_subnet" {
-  description = "CIDR for the pod network"
-  type        = string
-  default     = "192.168.0.0/16"
-}
-
-variable "cilium_version" {
-  description = "Version of Cilium to install (e.g., '1.13.4')"
-  type        = string
-  default     = "1.14.1"
-}
-
-variable "cilium_namespace" {
-  description = "Kubernetes namespace to install Cilium"
-  type        = string
-  default     = "cilium"
-}
-
-variable "cilium_image_repository" {
-  description = "Cilium image repository"
-  type        = string
-  default     = "quay.io/cilium/cilium"
-}
-
-variable "kubeconfig_path" {
-  description = "kubeconfig location"
-  type        = string
-  default     = "~/.kube/config"
+  default     = "debian"  # Update based on os_flavor
 }

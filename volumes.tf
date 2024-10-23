@@ -1,5 +1,3 @@
-# volumes.tf
-
 # Create base image storage pool if required
 resource "libvirt_pool" "base_image_pool" {
   count = var.create_base_image_pool ? 1 : 0
@@ -41,7 +39,7 @@ resource "libvirt_cloudinit_disk" "admin_cloudinit" {
   user_data      = templatefile("${path.module}/templates/cloud-init-admin.tpl", {
     hostname       = var.admin_hostname
     ssh_public_key = file(var.ssh_public_key_path)
-    default_username = local.default_username
+    username       = local.username
   })
   network_config = templatefile("${path.module}/templates/network-config-admin.tpl", {
     admin_use_dhcp = var.admin_use_dhcp
@@ -73,7 +71,7 @@ resource "libvirt_cloudinit_disk" "master_cloudinit" {
   user_data = templatefile("${path.module}/templates/cloud-init-master.tpl", {
     hostname       = "${var.master_hostname_prefix}-${count.index}"
     ssh_public_key = file(var.ssh_public_key_path)
-    default_username = local.default_username
+    username       = local.username
   })
   network_config = templatefile("${path.module}/templates/network-config-master.tpl", {
     masters_use_dhcp = var.masters_use_dhcp
@@ -106,7 +104,7 @@ resource "libvirt_cloudinit_disk" "worker_cloudinit" {
   user_data = templatefile("${path.module}/templates/cloud-init-worker.tpl", {
     hostname       = "${var.worker_hostname_prefix}-${count.index}"
     ssh_public_key = file(var.ssh_public_key_path)
-    default_username = local.default_username
+    username       = local.username
   })
   network_config = templatefile("${path.module}/templates/network-config-worker.tpl", {
     workers_use_dhcp = var.workers_use_dhcp
