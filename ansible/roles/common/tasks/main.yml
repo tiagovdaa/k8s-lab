@@ -1,0 +1,21 @@
+---
+- name: Update package database and upgrade packages (Ubuntu/Debian)
+  when: ansible_os_family == "Debian"
+  apt:
+    update_cache: yes
+    upgrade: dist
+    autoclean: yes
+    autoremove: yes
+- name: Update package database and upgrade packages (Rocky Linux)
+  when: ansible_os_family == "RedHat"
+  dnf:
+    name: "*"
+    state: latest
+    update_cache: yes
+- name: Install essential packages
+  package:
+    name:
+      - vim
+      - git
+      - curl
+    state: present
