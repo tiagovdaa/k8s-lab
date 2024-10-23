@@ -1,7 +1,46 @@
-variable "os_image_url" {
-  description = "URL to the base OS image file"
+variable "os_flavor" {
+  description = "Operating system flavor: 'ubuntu', 'debian', 'rocky'"
   type        = string
+  validation {
+    condition     = contains(["ubuntu", "debian", "rocky"], var.os_flavor)
+    error_message = "Invalid 'os_flavor'. Allowed values are 'ubuntu', 'debian', 'rocky'."
+  }
 }
+
+locals {
+  os_images = {
+    "ubuntu" = {
+      url      = "https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img"
+      format   = "qcow2"
+      username = "ubuntu"
+    }
+    "debian" = {
+      url      = "https://cdimage.debian.org/cdimage/cloud/bullseye/latest/debian-11-genericcloud-amd64.qcow2"
+      format   = "qcow2"
+      username = "debian"
+    }
+    "rocky" = {
+      url      = "https://dl.rockylinux.org/pub/rocky/9/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
+      format   = "qcow2"
+      username = "rocky"
+    }
+  }
+
+  default_username = local.os_images[var.os_flavor]["username"]
+}
+
+variable "os_image_url" {
+  description = "URL to the base OS image file (overrides default for selected os_flavor)"
+  type        = string
+  default     = ""
+}
+
+variable "os_image_format" {
+  description = "Format of the OS image (e.g., 'qcow2')"
+  type        = string
+  default     = ""
+}
+
 
 variable "base_image_pool_name" {
   description = "Name of the storage pool for base images"
@@ -19,6 +58,12 @@ variable "base_image_pool_path" {
   description = "Filesystem path for the base image storage pool (required if create_base_image_pool is true)"
   type        = string
   default     = "/var/lib/libvirt/images"
+}
+
+variable "cpu_mode" {
+  description = "CPU mode"
+  type        = string
+  default     = "custom"
 }
 
 variable "vm_disk_pool_name" {

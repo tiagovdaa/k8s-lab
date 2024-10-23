@@ -1,5 +1,7 @@
 # Base OS image URL
-os_image_url = "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
+os_flavor                  = "rocky"  # Options: "ubuntu", "debian", "rocky"
+os_image_url               = "https://dl.rockylinux.org/pub/rocky/9.4/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"  
+os_image_format            = "qcow2"
 
 # Storage pools
 base_image_pool_name       = "images"
@@ -34,14 +36,14 @@ admin_disk_size            = 20
 # Master Nodes Configuration
 master_hostname_prefix     = "libvirt-k8s-master"
 masters_use_dhcp           = false
-master_count               = 3
+master_count               = 1
 master_ips                 = ["10.0.0.11", "10.0.0.12", "10.0.0.13"]
 master_memory              = 4096
 master_vcpu                = 2
 master_disk_size           = 20
 
 # Worker Nodes Configuration
-worker_count               = 3
+worker_count               = 2
 worker_hostname_prefix     = "libvirt-k8s-worker"
 workers_use_dhcp           = false
 worker_ips                 = ["10.0.0.20", "10.0.0.21", "10.0.0.22"]

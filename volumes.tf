@@ -26,14 +26,14 @@ resource "libvirt_pool" "vm_disk_pool" {
 
 # Create a base volume from the OS image URL
 resource "libvirt_volume" "base_os_image" {
-  name   = "base_os_image.qcow2"
+  name   = "base_os_image_${var.os_flavor}.qcow2"
   pool   = var.base_image_pool_name
-  source = var.os_image_url
-  format = "qcow2"
+  source = var.os_image_url != "" ? var.os_image_url : local.os_images[var.os_flavor]["url"]
+  format = var.os_image_format != "" ? var.os_image_format : local.os_images[var.os_flavor]["format"]
 
-  # Ensure the base image pool exists before creating the volume
   depends_on = [libvirt_pool.base_image_pool]
 }
+
 
 # Create cloud-init disk for admin node
 resource "libvirt_cloudinit_disk" "admin_cloudinit" {
@@ -41,6 +41,7 @@ resource "libvirt_cloudinit_disk" "admin_cloudinit" {
   user_data      = templatefile("${path.module}/templates/cloud-init-admin.tpl", {
     hostname       = var.admin_hostname
     ssh_public_key = file(var.ssh_public_key_path)
+    default_username = local.default_username
   })
   network_config = templatefile("${path.module}/templates/network-config-admin.tpl", {
     admin_use_dhcp = var.admin_use_dhcp
@@ -72,6 +73,7 @@ resource "libvirt_cloudinit_disk" "master_cloudinit" {
   user_data = templatefile("${path.module}/templates/cloud-init-master.tpl", {
     hostname       = "${var.master_hostname_prefix}-${count.index}"
     ssh_public_key = file(var.ssh_public_key_path)
+    default_username = local.default_username
   })
   network_config = templatefile("${path.module}/templates/network-config-master.tpl", {
     masters_use_dhcp = var.masters_use_dhcp
@@ -104,6 +106,7 @@ resource "libvirt_cloudinit_disk" "worker_cloudinit" {
   user_data = templatefile("${path.module}/templates/cloud-init-worker.tpl", {
     hostname       = "${var.worker_hostname_prefix}-${count.index}"
     ssh_public_key = file(var.ssh_public_key_path)
+    default_username = local.default_username
   })
   network_config = templatefile("${path.module}/templates/network-config-worker.tpl", {
     workers_use_dhcp = var.workers_use_dhcp
