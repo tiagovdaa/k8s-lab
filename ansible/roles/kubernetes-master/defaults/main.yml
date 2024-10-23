@@ -1,5 +1,0 @@
----
-# Default values (will be overridden by variables from Terraform)
-kubernetes_version: "1.29.1"
-control_plane_endpoint: "{{ ansible_hostname }}"
-pod_subnet: "192.168.0.0/16"
