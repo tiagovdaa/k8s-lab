@@ -26,7 +26,7 @@ resource "libvirt_pool" "vm_disk_pool" {
 
 # Create a base volume from the OS image URL
 resource "libvirt_volume" "base_os_image" {
-  name   = "base_os_image_${var.os_flavor}.qcow2"
+  name   = "${var.os_flavor}_base_image.qcow2"
   pool   = var.base_image_pool_name
   source = var.os_image_url != "" ? var.os_image_url : local.os_images[var.os_flavor]["url"]
   format = var.os_image_format != "" ? var.os_image_format : local.os_images[var.os_flavor]["format"]
