@@ -14,15 +14,22 @@ variable "network_name" {
   default     = "default"
 }
 
-variable "use_dhcp" {
-  description = "Whether to use DHCP for IP assignment"
-  type        = bool
-  default     = true
+variable "network_mode" {
+  description = "Network mode: nat, isolated, etc."
+  type        = string
+  default     = "nat"
+}
+
+variable "network_address" {
+  description = "Base network address (e.g., '192.168.100.0')"
+  type        = string
+  default     = "192.168.100.0"
 }
 
 variable "netmask" {
   description = "Netmask for static IP configuration (in CIDR notation, e.g., '24')"
   type        = string
+  default     = "24"
 }
 
 variable "gateway" {
@@ -36,6 +43,18 @@ variable "dns_servers" {
   default     = ["8.8.8.8", "8.8.4.4"]
 }
 
+variable "network_domain" {
+  description = "Domain name for the network (optional)"
+  type        = string
+  default     = "k8s.local"
+}
+
+variable "create_network" {
+  description = "Set to true to create the network, false to use an existing network"
+  type        = bool
+  default     = false
+}
+
 variable "ssh_private_key_path" {
   description = "Path to your existing SSH private key"
   type        = string
@@ -47,7 +66,7 @@ variable "ssh_public_key_path" {
 }
 
 variable "admin_hostname" {
-  description = "Hostname prefix for master nodes"
+  description = "Hostname for the admin node"
   type        = string
 }
 
@@ -58,32 +77,32 @@ variable "admin_use_dhcp" {
 }
 
 variable "admin_ip" {
-  description = "Static IP for the admin node (required if use_dhcp is false)"
+  description = "Static IP address for the admin node"
   type        = string
   default     = ""
-  
+
   validation {
     condition     = var.admin_use_dhcp || (var.admin_ip != "")
-    error_message = "You must provide 'admin_ip' when 'use_dhcp' is false."
+    error_message = "You must provide 'admin_ip' when 'admin_use_dhcp' is false."
   }
 }
 
 variable "admin_memory" {
-  description = "Memory (in MB) for each master node"
+  description = "Memory (in MB) for the admin node"
   type        = number
   default     = 1024
 }
 
 variable "admin_vcpu" {
-  description = "Number of vCPUs for each master node"
+  description = "Number of vCPUs for the admin node"
   type        = number
   default     = 1
 }
 
 variable "admin_disk_size" {
-  description = "Disk size for master nodes in GB"
+  description = "Disk size for the admin node in GB"
   type        = number
-  default     = 10  # Default size in GB
+  default     = 10
 }
 
 variable "master_hostname_prefix" {
@@ -92,8 +111,8 @@ variable "master_hostname_prefix" {
 }
 
 variable "master_count" {
-  type        = number
   description = "Number of master nodes (must be an odd number)"
+  type        = number
 
   validation {
     condition     = var.master_count % 2 == 1
@@ -107,15 +126,14 @@ variable "masters_use_dhcp" {
   default     = false
 }
 
-
 variable "master_ips" {
-  description = "List of static IPs for master nodes (required if use_dhcp is false)"
+  description = "List of static IPs for master nodes"
   type        = list(string)
   default     = []
-  
+
   validation {
-    condition     = var.masters_use_dhcp || length(var.master_ips) == var.master_count
-    error_message = "You must provide 'master_ips' with exactly 'master_count' entries when 'use_dhcp' is false."
+    condition     = var.masters_use_dhcp || length(var.master_ips) > 0
+    error_message = "You must provide 'master_ips' when 'masters_use_dhcp' is false."
   }
 }
 
@@ -132,7 +150,7 @@ variable "master_vcpu" {
 variable "master_disk_size" {
   description = "Disk size for master nodes in GB"
   type        = number
-  default     = 20  # Default size in GB
+  default     = 20
 }
 
 variable "worker_hostname_prefix" {
@@ -152,13 +170,13 @@ variable "workers_use_dhcp" {
 }
 
 variable "worker_ips" {
-  description = "List of static IPs for worker nodes (required if use_dhcp is false)"
+  description = "List of static IPs for worker nodes"
   type        = list(string)
   default     = []
-  
+
   validation {
-    condition     = var.workers_use_dhcp || length(var.worker_ips) == var.worker_count
-    error_message = "You must provide 'worker_ips' with exactly 'worker_count' entries when 'use_dhcp' is false."
+    condition     = var.workers_use_dhcp || length(var.worker_ips) > 0
+    error_message = "You must provide 'worker_ips' when 'workers_use_dhcp' is false."
   }
 }
 
@@ -175,7 +193,7 @@ variable "worker_vcpu" {
 variable "worker_disk_size" {
   description = "Disk size for worker nodes in GB"
   type        = number
-  default     = 20  # Default size in GB
+  default     = 20
 }
 
 variable "ansible_inventory_file" {
@@ -238,6 +256,6 @@ variable "cilium_image_repository" {
 
 variable "kubeconfig_path" {
   description = "kubeconfig location"
-  type = string
-  default = "~/.kube/config"
+  type        = string
+  default     = "~/.kube/config"
 }

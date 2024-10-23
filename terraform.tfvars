@@ -5,6 +5,7 @@ ssh_public_key_path        = "~/.ssh/id_rsa.pub"
 
 # Network settings
 network_name               = "default"
+network_address            = "192.168.0.0"
 netmask                    = "24"
 gateway                    = "192.168.0.1"
 dns_servers                = ["8.8.8.8", "8.8.4.4"]
@@ -32,7 +33,6 @@ worker_vcpu                = 2
 worker_disk_size           = 40
 
 # Kubernetes               
-
 containerd_version         = ""  
 kubernetes_version         = "1.29.9"
 kubernetes_package_version = "1.29.9-1.1" 
