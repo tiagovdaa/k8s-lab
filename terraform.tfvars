@@ -1,8 +1,3 @@
-# Base OS image URL
-#os_flavor                  = "debian"  # Options: "ubuntu", "debian", "rocky"
-#os_image_url               = "https://cdimage.debian.org/cdimage/cloud/bookworm/latest/debian-12-genericcloud-amd64.qcow2"
-#os_flavor                  = "rocky"
-#os_image_url               = "https://dl.rockylinux.org/pub/rocky/9.4/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
 os_flavor                  = "ubuntu"
 os_image_url               = "https://cloud-images.ubuntu.com/noble/current/noble-server-cloudimg-amd64.img"
 os_image_format            = "qcow2"
@@ -47,9 +42,9 @@ master_vcpu                = 2
 master_disk_size           = 20
 
 # Worker Nodes Configuration
-worker_count               = 3
 worker_hostname_prefix     = "libvirt-k8s-worker"
 workers_use_dhcp           = false
+worker_count               = 3
 worker_ips                 = ["10.0.0.20", "10.0.0.21", "10.0.0.22"]
 worker_memory              = 2048
 worker_vcpu                = 2
