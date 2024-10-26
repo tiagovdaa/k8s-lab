@@ -1,12 +1,12 @@
 %{ if admin_use_dhcp }
 version: 2
 ethernets:
-  ens3:
+  ${network_interface}:
     dhcp4: true
 %{ else }
 version: 2
 ethernets:
-  ens3:
+  ${network_interface}:
     dhcp4: false
     addresses:
       - ${admin_ip}/${netmask}

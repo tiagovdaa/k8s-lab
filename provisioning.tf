@@ -1,3 +1,5 @@
+# provisioning.tf
+
 # ===============================================
 # 1. SSH Connectivity Checks for Admin, Masters, Workers
 # ===============================================
@@ -64,9 +66,7 @@ resource "null_resource" "wait_for_ssh_workers" {
 # 2. Ansible Inventory Generation
 # ===============================================
 
-# Generate Ansible inventory file using templatefile
 resource "local_file" "ansible_inventory" {
-  # Ensure inventory is generated after all SSH checks are complete
   depends_on = [
     null_resource.wait_for_ssh_admin,
     null_resource.wait_for_ssh_masters,
@@ -75,11 +75,16 @@ resource "local_file" "ansible_inventory" {
 
   content = templatefile("${path.module}/templates/ansible_inventory.tpl", {
     admin_ip   = var.admin_use_dhcp ? libvirt_domain.admin.network_interface[0].addresses[0] : var.admin_ip
-    master_ips = var.masters_use_dhcp ? [for m in libvirt_domain.masters : m.network_interface[0].addresses[0]] : var.master_ips
-    worker_ips = var.workers_use_dhcp ? [for w in libvirt_domain.workers : w.network_interface[0].addresses[0]] : var.worker_ips
+    masters    = var.masters_use_dhcp ? join("\n", [for m in libvirt_domain.masters : m.network_interface[0].addresses[0]]) : join("\n", var.master_ips)
+    workers    = var.workers_use_dhcp ? join("\n", [for w in libvirt_domain.workers : w.network_interface[0].addresses[0]]) : join("\n", var.worker_ips)
     username   = local.username
+    kubernetes_container_runtime = var.kubernetes_container_runtime
+    kubernetes_package_version   = var.kubernetes_package_version
+    kubernetes_version           = var.kubernetes_version
+    crio_version                 = var.crio_version
+    containerd_version           = var.containerd_version
   })
-  
+
   filename = "${path.module}/ansible/inventory.ini"
 }
 
@@ -87,9 +92,7 @@ resource "local_file" "ansible_inventory" {
 # 3. Ansible Playbook Execution
 # ===============================================
 
-# Execute Ansible Playbook
 resource "null_resource" "ansible_provision" {
-  # Ensure Ansible runs after inventory is generated
   depends_on = [
     local_file.ansible_inventory
   ]
@@ -99,7 +102,7 @@ resource "null_resource" "ansible_provision" {
       ANSIBLE_CONFIG = "${path.module}/ansible/ansible.cfg"
     }
     command = <<EOT
-    ansible-playbook -i ${path.module}/ansible/inventory.ini ansible/playbook.yml --private-key ${var.ssh_private_key_path}
+    ansible-playbook -i ${path.module}/ansible/inventory.ini ansible/playbook.yml --private-key ${var.ssh_private_key_path}| tee ${path.module}/ansible/provision.log
     EOT
   }
 }

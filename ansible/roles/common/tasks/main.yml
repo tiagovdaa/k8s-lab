@@ -1,21 +1,246 @@
 ---
-- name: Update package database and upgrade packages (Ubuntu/Debian)
-  when: ansible_os_family == "Debian"
-  apt:
-    update_cache: yes
-    upgrade: dist
-    autoclean: yes
-    autoremove: yes
-- name: Update package database and upgrade packages (Rocky Linux)
-  when: ansible_os_family == "RedHat"
-  dnf:
-    name: "*"
-    state: latest
-    update_cache: yes
-- name: Install essential packages
-  package:
-    name:
-      - vim
-      - git
-      - curl
+# 0. Disable Swap
+
+- name: Disable all swap immediately
+  ansible.builtin.command: swapoff -a
+  ignore_errors: yes
+
+- name: Ensure swap is disabled permanently by commenting out /etc/fstab entries
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    regexp: '^([^#].*swap)'
+    line: '#\1'
+    backrefs: yes
     state: present
+  notify: Reboot if /etc/fstab was modified
+
+# 1. Load Required Kernel Modules
+
+- name: Load required kernel modules
+  ansible.builtin.modprobe:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - overlay
+    - br_netfilter
+
+# 2. Configure sysctl Parameters for Kubernetes
+
+- name: Apply Kubernetes sysctl parameters
+  ansible.posix.sysctl:
+    name: "{{ item.name }}"
+    value: "{{ item.value }}"
+    state: present
+    reload: yes
+  loop: "{{ kubernetes_sysctl_params }}"
+
+# 3. Install and Configure Containerd
+
+- name: Install and configure containerd
+  when: container_runtime == "containerd"
+  block:
+    - name: Install containerd on Debian/Ubuntu
+      when: ansible_os_family == "Debian"
+      ansible.builtin.apt:
+        name: containerd
+        state: present
+        update_cache: yes
+
+    - name: Install containerd on Rocky/Redhat
+      when: ansible_os_family == "RedHat"
+      ansible.builtin.yum:
+        name: containerd
+        state: present
+        update_cache: yes
+
+    - name: Ensure /etc/containerd exists
+      ansible.builtin.file:
+        path: /etc/containerd
+        state: directory
+        mode: '0755'
+
+    - name: Generate default containerd config.toml if it does not exist
+      ansible.builtin.shell: |
+        containerd config default > /etc/containerd/config.toml
+      args:
+        creates: /etc/containerd/config.toml
+
+    - name: Configure containerd to use systemd cgroup
+      ansible.builtin.lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: '^  SystemdCgroup = false'
+        line: '  SystemdCgroup = true'
+        backrefs: yes
+        insertafter: '^[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]'
+        # Adjust 'insertafter' based on the actual config.toml structure
+      notify:
+        - Restart containerd
+
+    - name: Restart containerd service
+      ansible.builtin.systemd:
+        name: containerd
+        state: restarted
+        enabled: yes
+
+# 4. Install and Configure CRI-O
+
+- name: Install CRI-O on Debian/Ubuntu
+  when: (container_runtime == "cri-o") and (ansible_os_family == "Debian")
+  block:
+    - name: Install dependencies
+      ansible.builtin.apt:
+        name:
+          - software-properties-common
+          - curl
+        state: present
+        update_cache: yes
+
+    - name: Add CRI-O GPG key
+      ansible.builtin.apt_key:
+        url: "https://pkgs.k8s.io/addons:/cri-o:/stable:/{{ crio_ver }}/deb/Release.key"
+        state: present
+        keyring: /etc/apt/keyrings/cri-o-apt-keyring.gpg
+
+    - name: Add CRI-O APT repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://pkgs.k8s.io/addons:/cri-o:/stable:/{{ crio_ver }}/deb/ /"
+        state: present
+        filename: cri-o.list
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install CRI-O packages
+      ansible.builtin.apt:
+        name:
+          - cri-o
+        state: present
+
+    - name: Enable and start CRI-O service
+      ansible.builtin.systemd:
+        name: crio
+        state: started
+        enabled: yes
+
+- name: Install CRI-O on Rocky/Redhat
+  when: (container_runtime == "cri-o") and (ansible_os_family == "RedHat")
+  block:
+    - name: Add CRI-O repository
+      ansible.builtin.yum_repository:
+        name: cri-o
+        description: CRI-O Repository
+        baseurl: "https://pkgs.k8s.io/addons:/cri-o:/stable:/{{ crio_ver }}/rpm/"
+        enabled: yes
+        gpgcheck: yes
+        repo_gpgcheck: yes
+        gpgkey:
+          - "https://pkgs.k8s.io/addons:/cri-o:/stable:/{{ crio_ver }}/rpm/repodata/repomd.xml.key"
+
+    - name: Install dependencies
+      ansible.builtin.yum:
+        name: container-selinux
+        state: present
+        update_cache: yes
+
+    - name: Install CRI-O packages
+      ansible.builtin.yum:
+        name:
+          - cri-o
+        state: present
+        update_cache: yes
+
+    - name: Enable and start CRI-O service
+      ansible.builtin.systemd:
+        name: crio
+        state: started
+        enabled: yes
+
+# 4. Install and Configure Kubernetes Packages
+
+- name: Install Kubernetes packages on Debian/Ubuntu
+  when: ansible_os_family == "Debian"
+  block:
+    - name: Create directory for apt keyrings
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Add Kubernetes GPG key
+      ansible.builtin.apt_key:
+        url: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_version_major_minor }}/deb/Release.key"
+        state: present
+        keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+    - name: Add Kubernetes APT repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ k8s_version_major_minor }}/deb/ /"
+        state: present
+        filename: kubernetes.list
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install Kubernetes packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - "kubeadm={{ k8s_package_version }}"
+        - "kubelet={{ k8s_package_version }}"
+        - "kubectl={{ k8s_package_version }}"
+
+    - name: Hold Kubernetes packages
+      ansible.builtin.dpkg_selections:
+        name: "{{ item }}"
+        selection: hold
+      loop:
+        - kubeadm
+        - kubelet
+        - kubectl
+
+    - name: Enable and start kubelet
+      ansible.builtin.systemd:
+        name: kubelet
+        enabled: yes
+        state: started
+
+- name: Install Kubernetes packages on Rocky/Redhat
+  when: ansible_os_family == "RedHat"
+  block:
+    - name: Add Kubernetes repository
+      ansible.builtin.yum_repository:
+        name: kubernetes
+        description: Kubernetes Repository
+        baseurl: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_version_major_minor }}/rpm/"
+        enabled: yes
+        gpgcheck: yes
+        repo_gpgcheck: yes
+        gpgkey: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_version_major_minor }}/rpm/repodata/repomd.xml.key"
+
+    - name: Install dnf plugin for version locking
+      ansible.builtin.yum:
+        name: 'python3-dnf-plugin-versionlock'
+        state: present
+
+    - name: Install Kubernetes packages
+      ansible.builtin.yum:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - "kubeadm-{{ k8s_version }}"
+        - "kubelet-{{ k8s_version }}"
+        - "kubectl-{{ k8s_version }}"
+
+    - name: Versionlock Kubernetes packages
+      ansible.builtin.shell: yum versionlock kubeadm kubelet kubectl
+
+    - name: Enable and start kubelet
+      ansible.builtin.systemd:
+        name: kubelet
+        enabled: yes
+        state: started

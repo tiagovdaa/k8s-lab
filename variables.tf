@@ -13,21 +13,32 @@ locals {
     "ubuntu" = {
       url      = "https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img"
       format   = "qcow2"
-      username = "ubuntu"
     }
     "debian" = {
       url      = "https://cdimage.debian.org/cdimage/cloud/bullseye/latest/debian-11-genericcloud-amd64.qcow2"
       format   = "qcow2"
-      username = "debian"
     }
     "rocky" = {
       url      = "https://dl.rockylinux.org/pub/rocky/9/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
       format   = "qcow2"
+    }
+  }
+  os_details = {
+    "ubuntu" = {
+      network_interface = "ens3"
+      username = "ubuntu"
+    }
+    "debian" = {
+      network_interface = "ens3"
+      username = "debian"
+    }
+    "rocky" = {
+      network_interface = "eth0"
       username = "rocky"
     }
   }
-
-  username = local.os_images[var.os_flavor]["username"]
+  username = local.os_details[var.os_flavor]["username"]
+  netinf = local.os_details[var.os_flavor]["network_interface"]
 }
 
 variable "os_image_url" {
@@ -297,4 +308,43 @@ variable "worker_user" {
   description = "SSH username for the worker nodes"
   type        = string
   default     = "debian"  # Update based on os_flavor
+}
+
+# Kubernetes Configuration
+
+variable "kubernetes_package_version" {
+  description = "Version of Kubernetes packages to install (e.g., '1.29.1-1.1')"
+  type        = string
+  default     = "1.29.1-1.1"
+}
+
+variable "kubernetes_version" {
+  description = "Kubernetes version (e.g., '1.29.1') for YAML configurations and other uses"
+  type        = string
+  default     = "1.29.1"
+}
+
+variable "kubernetes_container_runtime" {
+  description = "Container runtime to use for Kubernetes. Options: containerd, docker, cri-o"
+  type        = string
+  default     = "containerd"
+
+  validation {
+    condition     = contains(["containerd", "cri-o"], var.kubernetes_container_runtime)
+    error_message = "kubernetes_container_runtime must be one of: containerd, docker, cri-o"
+  }
+}
+
+# CRI-O Version
+variable "crio_version" {
+  description = "CRI-O version to install (e.g., 'v1.31')"
+  type        = string
+  default     = "v1.31"
+}
+
+# Containerd Version
+variable "containerd_version" {
+  description = "Containerd version to install (e.g., '1.6.4')"
+  type        = string
+  default     = "1.6.4"
 }

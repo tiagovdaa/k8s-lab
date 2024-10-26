@@ -39,7 +39,7 @@ resource "libvirt_cloudinit_disk" "admin_cloudinit" {
   user_data      = templatefile("${path.module}/templates/cloud-init-admin.tpl", {
     hostname       = var.admin_hostname
     ssh_public_key = file(var.ssh_public_key_path)
-    username       = local.username
+    username       = var.os_flavor
   })
   network_config = templatefile("${path.module}/templates/network-config-admin.tpl", {
     admin_use_dhcp = var.admin_use_dhcp
@@ -47,6 +47,7 @@ resource "libvirt_cloudinit_disk" "admin_cloudinit" {
     netmask        = var.netmask
     gateway        = var.gateway
     dns_servers    = var.dns_servers
+    network_interface = local.netinf
   })
   pool           = var.vm_disk_pool_name
 
@@ -71,7 +72,7 @@ resource "libvirt_cloudinit_disk" "master_cloudinit" {
   user_data = templatefile("${path.module}/templates/cloud-init-master.tpl", {
     hostname       = "${var.master_hostname_prefix}-${count.index}"
     ssh_public_key = file(var.ssh_public_key_path)
-    username       = local.username
+    username       = var.os_flavor
   })
   network_config = templatefile("${path.module}/templates/network-config-master.tpl", {
     masters_use_dhcp = var.masters_use_dhcp
@@ -79,6 +80,7 @@ resource "libvirt_cloudinit_disk" "master_cloudinit" {
     netmask          = var.netmask
     gateway          = var.gateway
     dns_servers      = var.dns_servers
+    network_interface = local.netinf
   })
   pool      = var.vm_disk_pool_name
 
@@ -104,7 +106,7 @@ resource "libvirt_cloudinit_disk" "worker_cloudinit" {
   user_data = templatefile("${path.module}/templates/cloud-init-worker.tpl", {
     hostname       = "${var.worker_hostname_prefix}-${count.index}"
     ssh_public_key = file(var.ssh_public_key_path)
-    username       = local.username
+    username       = var.os_flavor
   })
   network_config = templatefile("${path.module}/templates/network-config-worker.tpl", {
     workers_use_dhcp = var.workers_use_dhcp
@@ -112,6 +114,7 @@ resource "libvirt_cloudinit_disk" "worker_cloudinit" {
     netmask          = var.netmask
     gateway          = var.gateway
     dns_servers      = var.dns_servers
+    network_interface = local.netinf
   })
   pool      = var.vm_disk_pool_name
 
