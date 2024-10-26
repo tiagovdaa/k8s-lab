@@ -55,6 +55,6 @@ worker_disk_size           = 40
 
 kubernetes_version             = "1.30.0"
 kubernetes_package_version     = "1.30.0-1.1"
-kubernetes_container_runtime   = "cri-o"  # Options: containerd or cri-o
+kubernetes_container_runtime   = "containerd"  # Options: containerd or cri-o
 crio_version                   = "v1.30"  
 containerd_version             = "1.7.2"       

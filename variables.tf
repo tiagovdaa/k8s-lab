@@ -9,30 +9,22 @@ variable "os_flavor" {
 }
 
 locals {
-  os_images = {
-    "ubuntu" = {
-      url      = "https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img"
-      format   = "qcow2"
-    }
-    "debian" = {
-      url      = "https://cdimage.debian.org/cdimage/cloud/bullseye/latest/debian-11-genericcloud-amd64.qcow2"
-      format   = "qcow2"
-    }
-    "rocky" = {
-      url      = "https://dl.rockylinux.org/pub/rocky/9/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
-      format   = "qcow2"
-    }
-  }
   os_details = {
     "ubuntu" = {
+      url      = "https://cloud-images.ubuntu.com/releases/22.04/release/ubuntu-22.04-server-cloudimg-amd64.img"
+      format   = "qcow2"      
       network_interface = "ens3"
       username = "ubuntu"
     }
     "debian" = {
+      url      = "https://cdimage.debian.org/cdimage/cloud/bullseye/latest/debian-11-genericcloud-amd64.qcow2"
+      format   = "qcow2"      
       network_interface = "ens3"
       username = "debian"
     }
     "rocky" = {
+      url      = "https://dl.rockylinux.org/pub/rocky/9/images/x86_64/Rocky-9-GenericCloud.latest.x86_64.qcow2"
+      format   = "qcow2"      
       network_interface = "eth0"
       username = "rocky"
     }

@@ -26,8 +26,8 @@ resource "libvirt_pool" "vm_disk_pool" {
 resource "libvirt_volume" "base_os_image" {
   name   = "${var.os_flavor}_base_image.qcow2"
   pool   = var.base_image_pool_name
-  source = var.os_image_url != "" ? var.os_image_url : local.os_images[var.os_flavor]["url"]
-  format = var.os_image_format != "" ? var.os_image_format : local.os_images[var.os_flavor]["format"]
+  source = var.os_image_url != "" ? var.os_image_url : local.os_details[var.os_flavor]["url"]
+  format = var.os_image_format != "" ? var.os_image_format : local.os_details[var.os_flavor]["format"]
 
   depends_on = [libvirt_pool.base_image_pool]
 }
