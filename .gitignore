@@ -1,9 +1,11 @@
+.gitignore
 .terraform.lock.hcl
 .terraform/
 images/*
 terraform.tfstate
 terraform.tfstate.backup
 ansible/inventory* 
+ansible/provision* 
 plan
 .gitignore
 # Local .terraform directories

@@ -1,6 +1,12 @@
-- hosts: masters,workers
+- hosts: admin
   become: yes
-  vars_files:
-    - roles/common/vars/main.yml
   roles:
     - common
+
+- hosts: masters,workers
+  become: yes
+  roles:
+    - common
+    - k8s-requirements
+    - container-runtime
+    - k8s-installation

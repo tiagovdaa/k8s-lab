@@ -1,0 +1,5 @@
+---
+# defaults file for container-runtime
+container_runtime: containerd  # Options: 'containerd', 'docker', 'cri-o'
+crio_ver: v1.31
+containerd_ver: 1.6.4

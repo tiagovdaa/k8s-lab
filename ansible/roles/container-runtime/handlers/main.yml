@@ -1,0 +1,12 @@
+---
+- name: Restart containerd
+  ansible.builtin.systemd:
+    name: containerd
+    state: restarted
+    enabled: yes
+
+- name: Restart crio
+  ansible.builtin.systemd:
+    name: crio
+    state: restarted
+    enabled: yes

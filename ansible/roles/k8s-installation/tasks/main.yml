@@ -1,0 +1,88 @@
+---
+# Install and Configure Kubernetes Packages
+
+- name: Install Kubernetes packages on Debian/Ubuntu
+  when: ansible_os_family == "Debian"
+  block:
+    - name: Create directory for apt keyrings
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        mode: '0755'
+
+    - name: Add Kubernetes GPG key
+      ansible.builtin.apt_key:
+        url: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_version_major_minor }}/deb/Release.key"
+        state: present
+        keyring: /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+
+    - name: Add Kubernetes APT repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v{{ k8s_version_major_minor }}/deb/ /"
+        state: present
+        filename: kubernetes.list
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install Kubernetes packages
+      ansible.builtin.apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - "kubeadm={{ k8s_package_version }}"
+        - "kubelet={{ k8s_package_version }}"
+        - "kubectl={{ k8s_package_version }}"
+
+    - name: Hold Kubernetes packages
+      ansible.builtin.dpkg_selections:
+        name: "{{ item }}"
+        selection: hold
+      loop:
+        - kubeadm
+        - kubelet
+        - kubectl
+
+    - name: Enable and start kubelet
+      ansible.builtin.systemd:
+        name: kubelet
+        enabled: yes
+        state: started
+
+- name: Install Kubernetes packages on Rocky/Redhat
+  when: ansible_os_family == "RedHat"
+  block:
+    - name: Add Kubernetes repository
+      ansible.builtin.yum_repository:
+        name: kubernetes
+        description: Kubernetes Repository
+        baseurl: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_version_major_minor }}/rpm/"
+        enabled: yes
+        gpgcheck: yes
+        repo_gpgcheck: yes
+        gpgkey: "https://pkgs.k8s.io/core:/stable:/v{{ k8s_version_major_minor }}/rpm/repodata/repomd.xml.key"
+
+    - name: Install dnf plugin for version locking
+      ansible.builtin.yum:
+        name: 'python3-dnf-plugin-versionlock'
+        state: present
+
+    - name: Install Kubernetes packages
+      ansible.builtin.yum:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - "kubeadm-{{ k8s_version }}"
+        - "kubelet-{{ k8s_version }}"
+        - "kubectl-{{ k8s_version }}"
+
+    - name: Versionlock Kubernetes packages
+      ansible.builtin.shell: yum versionlock kubeadm kubelet kubectl
+
+    - name: Enable and start kubelet
+      ansible.builtin.systemd:
+        name: kubelet
+        enabled: yes
+        state: started

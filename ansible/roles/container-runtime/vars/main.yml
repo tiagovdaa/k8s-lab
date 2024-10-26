@@ -1,0 +1,15 @@
+---
+# ===============================================
+# Container Runtime Configuration
+# ===============================================
+# Choose the container runtime for Kubernetes.
+# Options:
+#   - containerd
+#   - docker
+#   - cri-o
+container_runtime: "{{ kubernetes_container_runtime }}"
+# ===============================================
+# CRI-O and Containerd Configuration
+# ===============================================
+crio_ver: "{{ crio_version }}"
+containerd_ver: "{{ containerd_version }}"

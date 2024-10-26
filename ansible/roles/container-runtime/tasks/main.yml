@@ -1,0 +1,123 @@
+---
+# Install and Configure Containerd
+
+- name: Install and configure containerd
+  when: container_runtime == "containerd"
+  block:
+    - name: Install containerd on Debian/Ubuntu
+      when: ansible_os_family == "Debian"
+      ansible.builtin.apt:
+        name: containerd
+        state: present
+        update_cache: yes
+
+    - name: Install containerd on Rocky/Redhat
+      when: ansible_os_family == "RedHat"
+      ansible.builtin.yum:
+        name: containerd
+        state: present
+        update_cache: yes
+
+    - name: Ensure /etc/containerd exists
+      ansible.builtin.file:
+        path: /etc/containerd
+        state: directory
+        mode: '0755'
+
+    - name: Generate default containerd config.toml if it does not exist
+      ansible.builtin.shell: |
+        containerd config default > /etc/containerd/config.toml
+      args:
+        creates: /etc/containerd/config.toml
+
+    - name: Configure containerd to use systemd cgroup
+      ansible.builtin.lineinfile:
+        path: /etc/containerd/config.toml
+        regexp: '^  SystemdCgroup = false'
+        line: '  SystemdCgroup = true'
+        backrefs: yes
+        insertafter: '^[plugins."io.containerd.grpc.v1.cri".containerd.runtimes.runc]'
+        # Adjust 'insertafter' based on the actual config.toml structure
+      notify:
+        - Restart containerd
+
+    - name: Restart containerd service
+      ansible.builtin.systemd:
+        name: containerd
+        state: restarted
+        enabled: yes
+
+# Install and Configure CRI-O
+
+- name: Install CRI-O on Debian/Ubuntu
+  when: (container_runtime == "cri-o") and (ansible_os_family == "Debian")
+  block:
+    - name: Install dependencies
+      ansible.builtin.apt:
+        name:
+          - software-properties-common
+          - curl
+        state: present
+        update_cache: yes
+
+    - name: Add CRI-O GPG key
+      ansible.builtin.apt_key:
+        url: "https://pkgs.k8s.io/addons:/cri-o:/stable:/{{ crio_ver }}/deb/Release.key"
+        state: present
+        keyring: /etc/apt/keyrings/cri-o-apt-keyring.gpg
+
+    - name: Add CRI-O APT repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/etc/apt/keyrings/cri-o-apt-keyring.gpg] https://pkgs.k8s.io/addons:/cri-o:/stable:/{{ crio_ver }}/deb/ /"
+        state: present
+        filename: cri-o.list
+
+    - name: Update apt cache
+      ansible.builtin.apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+    - name: Install CRI-O packages
+      ansible.builtin.apt:
+        name:
+          - cri-o
+        state: present
+
+    - name: Enable and start CRI-O service
+      ansible.builtin.systemd:
+        name: crio
+        state: started
+        enabled: yes
+
+- name: Install CRI-O on Rocky/Redhat
+  when: (container_runtime == "cri-o") and (ansible_os_family == "RedHat")
+  block:
+    - name: Add CRI-O repository
+      ansible.builtin.yum_repository:
+        name: cri-o
+        description: CRI-O Repository
+        baseurl: "https://pkgs.k8s.io/addons:/cri-o:/stable:/{{ crio_ver }}/rpm/"
+        enabled: yes
+        gpgcheck: yes
+        repo_gpgcheck: yes
+        gpgkey:
+          - "https://pkgs.k8s.io/addons:/cri-o:/stable:/{{ crio_ver }}/rpm/repodata/repomd.xml.key"
+
+    - name: Install dependencies
+      ansible.builtin.yum:
+        name: container-selinux
+        state: present
+        update_cache: yes
+
+    - name: Install CRI-O packages
+      ansible.builtin.yum:
+        name:
+          - cri-o
+        state: present
+        update_cache: yes
+
+    - name: Enable and start CRI-O service
+      ansible.builtin.systemd:
+        name: crio
+        state: started
+        enabled: yes

@@ -18,7 +18,7 @@ ssh_public_key_path        = "~/.ssh/id_rsa.pub"
 
 # Network settings
 network_name               = "default"
-create_network             = false
+create_network             = true
 network_domain             = "lab.net"
 network_address            = "192.168.0.0"
 netmask                    = "24"
@@ -36,8 +36,8 @@ admin_disk_size            = 20
 # Master Nodes Configuration
 master_hostname_prefix     = "libvirt-k8s-master"
 masters_use_dhcp           = false
-master_count               = 1
-master_ips                 = ["192.168.0.11"]#["10.0.0.11", "10.0.0.12", "10.0.0.13"]
+master_count               = 3
+master_ips                 = ["192.168.0.11", "192.168.0.12", "192.168.0.13"]
 master_memory              = 8192
 master_vcpu                = 2
 master_disk_size           = 20
@@ -45,8 +45,8 @@ master_disk_size           = 20
 # Worker Nodes Configuration
 worker_hostname_prefix     = "libvirt-k8s-worker"
 workers_use_dhcp           = false
-worker_count               = 2
-worker_ips                 = ["192.168.0.20","192.168.0.21"]#["10.0.0.20", "10.0.0.21", "10.0.0.22"]
+worker_count               = 3
+worker_ips                 = ["192.168.0.20", "192.168.0.21", "192.168.0.22"]
 worker_memory              = 4096
 worker_vcpu                = 2
 worker_disk_size           = 40

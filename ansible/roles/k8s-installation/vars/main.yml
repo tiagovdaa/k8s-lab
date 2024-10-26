@@ -1,0 +1,9 @@
+---
+# vars file for k8s-installation
+# ===============================================
+# Kubernetes Package Versions
+# ===============================================
+# Define the Kubernetes version to install on all nodes.
+k8s_package_version: "{{ kubernetes_package_version }}"
+k8s_version: "{{ kubernetes_version }}"
+k8s_version_major_minor: "{{ k8s_version.split('.')[:2] | join('.') }}"

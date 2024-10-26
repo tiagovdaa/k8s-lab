@@ -1,0 +1,5 @@
+---
+- name: Reboot if /etc/fstab was modified
+  ansible.builtin.reboot:
+    reboot_timeout: 600
+    test_command: uptime
