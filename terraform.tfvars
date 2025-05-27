@@ -4,10 +4,12 @@ os_image_url               = "https://cloud-images.ubuntu.com/noble/current/nobl
 os_image_format            = "qcow2"
 
 # Storage pools
+# base images
 base_image_pool_name       = "images"
 create_base_image_pool     = true
 base_image_pool_path       = "/data/libvirt/cloud-images"
-    
+
+# vm disks   
 vm_disk_pool_name          = "vms"
 create_vm_disk_pool        = true
 vm_disk_pool_path          = "/data/libvirt/vms"
@@ -17,7 +19,7 @@ ssh_private_key_path       = "~/.ssh/id_rsa"
 ssh_public_key_path        = "~/.ssh/id_rsa.pub"
 
 # Network settings
-network_name               = "default"
+network_name               = "lab"
 create_network             = true
 network_domain             = "lab.net"
 network_address            = "192.168.0.0"
