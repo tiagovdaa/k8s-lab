@@ -5,13 +5,13 @@ os_image_format            = "qcow2"
 
 # Storage pools
 # base images
-base_image_pool_name       = "images"
-create_base_image_pool     = true
+base_image_pool_name       = "cloud-images"
+create_base_image_pool     = false
 base_image_pool_path       = "/data/libvirt/cloud-images"
 
 # vm disks   
 vm_disk_pool_name          = "vms"
-create_vm_disk_pool        = true
+create_vm_disk_pool        = false
 vm_disk_pool_path          = "/data/libvirt/vms"
     
 # SSH keys    
@@ -20,7 +20,7 @@ ssh_public_key_path        = "~/.ssh/id_rsa.pub"
 
 # Network settings
 network_name               = "lab"
-create_network             = true
+create_network             = false
 network_domain             = "lab.net"
 network_address            = "192.168.0.0"
 netmask                    = "24"

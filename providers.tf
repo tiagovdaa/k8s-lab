@@ -8,11 +8,11 @@ terraform {
     }
     null = {
       source  = "hashicorp/null"
-      version = ">= 3.2.3"
+      version = ">= 3.2.4"
     }
     local = {
       source  = "hashicorp/local"
-      version = ">= 2.5.2"
+      version = ">= 2.5.3"
     }
     template = {
       source  = "hashicorp/template"
